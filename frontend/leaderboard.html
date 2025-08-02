@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternConnect - Leaderboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --bg: #0F0F1A;
+            --card-bg: #1E1E2E;
+            --text: #FFFFFF;
+            --text-secondary: #B8B8D1;
+            --hover: #8A85FF;
+            --success: #1DE9B6;
+            --warning: #FFAB40;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 4px 30px rgba(108, 99, 255, 0.2);
+        }
+
+        .navbar-brand {
+            color: var(--primary);
+            font-weight: 700;
+            animation: fadeIn 1s ease;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .leaderboard-container {
+            padding: 2rem;
+            margin-top: 80px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .leaderboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leaderboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+            z-index: 0;
+        }
+
+        .leaderboard-header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .leaderboard-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .leaderboard-card:nth-child(1) { animation-delay: 0.2s; }
+        .leaderboard-card:nth-child(2) { animation-delay: 0.4s; }
+        .leaderboard-card:nth-child(3) { animation-delay: 0.6s; }
+        .leaderboard-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .leaderboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(108, 99, 255, 0.2);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .leaderboard-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+        }
+
+        .leaderboard-table td {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-table tr:hover td {
+            background: rgba(108, 99, 255, 0.1);
+            transform: scale(1.01);
+        }
+
+        .rank {
+            font-weight: 700;
+            width: 50px;
+            text-align: center;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #A05A2C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+            border: 2px solid var(--primary);
+        }
+
+        .current-user {
+            background: rgba(108, 99, 255, 0.2) !important;
+            border-left: 4px solid var(--primary);
+        }
+
+        .points {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            width: 100px;
+            display: inline-block;
+            margin-left: 1rem;
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+            transition: width 1s ease;
+        }
+
+        .filter-controls {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+        }
+
+        .badge-category {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .badge-category:hover,
+        .badge-category.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-rocket"></i> InternConnect
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                <a class="nav-link active" href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a>
+                <button class="btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Leaderboard Content -->
+    <div class="container leaderboard-container">
+        <div class="leaderboard-header">
+            <div class="leaderboard-header-content">
+                <h2><i class="fas fa-trophy"></i> Intern Leaderboard</h2>
+                <p>See how you compare with other interns in your cohort</p>
+                <div class="d-flex align-items-center mt-3">
+                    <div class="me-3">
+                        <small class="text-white-50">Your Rank</small>
+                        <h3 class="mb-0">#5</h3>
+                    </div>
+                    <div>
+                        <small class="text-white-50">Your Points</small>
+                        <h3 class="mb-0">850 <small class="text-white-50">/ 1000</small></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-controls">
+            <h5 class="mb-3">Filter By:</h5>
+            <div>
+                <span class="badge-category active">All</span>
+                <span class="badge-category">Technical</span>
+                <span class="badge-category">Creative</span>
+                <span class="badge-category">Teamwork</span>
+                <span class="badge-category">Leadership</span>
+            </div>
+        </div>
+
+        <div class="leaderboard-card">
+            <div class="table-responsive">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th class="rank">Rank</th>
+                            <th>Intern</th>
+                            <th>Department</th>
+                            <th class="text-end">Points</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="leaderboard-card">
+            <h5><i class="fas fa-chart-pie stats-icon"></i> Performance Distribution</h5>
+            <div class="mt-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="performanceChart" height="250"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Top 20%</span>
+                                <span>4 interns</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-warning" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Middle 60%</span>
+                                <span>12 interns</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Bottom 20%</span>
+                                <span>4 interns</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-danger" style="width: 20%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample data - in a real app, you would fetch this from your backend
+        const leaderboardData = [
+            { 
+                id: 1,
+                name: "Alex Johnson", 
+                avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+                department: "Engineering",
+                points: 1250,
+                progress: 90,
+                currentUser: false
+            },
+            { 
+                id: 2,
+                name: "Maria Garcia", 
+                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+                department: "Product Design",
+                points: 1150,
+                progress: 85,
+                currentUser: false
+            },
+            { 
+                id: 3,
+                name: "James Wilson", 
+                avatar: "https://randomuser.me/api/portraits/men/67.jpg",
+                department: "Data Science",
+                points: 1050,
+                progress: 80,
+                currentUser: false
+            },
+            { 
+                id: 4,
+                name: "Sarah Lee", 
+                avatar: "https://randomuser.me/api/portraits/women/63.jpg",
+                department: "Marketing",
+                points: 950,
+                progress: 75,
+                currentUser: false
+            },
+            { 
+                id: 5,
+                name: "Abhay Patil", 
+                avatar: "https://ui-avatars.com/api/?name=Abhay+Patil&background=6C63FF&color=fff",
+                department: "Engineering",
+                points: 850,
+                progress: 70,
+                currentUser: true
+            },
+            { 
+                id: 6,
+                name: "Emma Davis", 
+                avatar: "https://randomuser.me/api/portraits/women/28.jpg",
+                department: "UX Design",
+                points: 800,
+                progress: 65,
+                currentUser: false
+            },
+            { 
+                id: 7,
+                name: "Michael Brown", 
+                avatar: "https://randomuser.me/api/portraits/men/22.jpg",
+                department: "Engineering",
+                points: 750,
+                progress: 60,
+                currentUser: false
+            },
+            { 
+                id: 8,
+                name: "Olivia Martinez", 
+                avatar: "https://randomuser.me/api/portraits/women/33.jpg",
+                department: "Product Management",
+                points: 700,
+                progress: 55,
+                currentUser: false
+            },
+            { 
+                id: 9,
+                name: "David Anderson", 
+                avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+                department: "Data Science",
+                points: 650,
+                progress: 50,
+                currentUser: false
+            },
+            { 
+                id: 10,
+                name: "Sophia Taylor", 
+                avatar: "https://randomuser.me/api/portraits/women/50.jpg",
+                department: "Marketing",
+                points: 600,
+                progress: 45,
+                currentUser: false
+            }
+        ];
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function () {
+            const userData = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load leaderboard data
+            renderLeaderboard();
+
+            // Initialize chart
+            initPerformanceChart();
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    document.querySelector('.navbar').classList.add('scrolled');
+                } else {
+                    document.querySelector('.navbar').classList.remove('scrolled');
+                }
+            });
+
+            // Filter functionality
+            document.querySelectorAll('.badge-category').forEach(badge => {
+                badge.addEventListener('click', function() {
+                    document.querySelectorAll('.badge-category').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    // In a real app, you would filter the data here
+                });
+            });
+        });
+
+        function renderLeaderboard() {
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            leaderboardBody.innerHTML = '';
+
+            leaderboardData.sort((a, b) => b.points - a.points).forEach((user, index) => {
+                const rank = index + 1;
+                const row = document.createElement('tr');
+                if (user.currentUser) {
+                    row.classList.add('current-user');
+                }
+
+                row.innerHTML = `
+                    <td class="rank">
+                        <span class="${rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : ''}">
+                            ${rank}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="${user.avatar}" class="user-avatar" alt="${user.name}">
+                            <div>
+                                <h6 class="mb-0">${user.name}</h6>
+                                <small class="text-muted">${user.department}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.department}</td>
+                    <td class="text-end points">${user.points.toLocaleString()}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            ${user.progress}%
+                            <div class="progress ms-2">
+                                <div class="progress-bar" style="width: ${user.progress}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                leaderboardBody.appendChild(row);
+            });
+
+            // Animate progress bars
+            setTimeout(() => {
+                document.querySelectorAll('.progress-bar').forEach(bar => {
+                    bar.style.width = bar.style.width;
+                });
+            }, 500);
+        }
+
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Top Performers', 'Average', 'Needs Improvement'],
+                    datasets: [{
+                        data: [20, 60, 20],
+                        backgroundColor: [
+                            'rgba(255, 215, 0, 0.7)',
+                            'rgba(108, 99, 255, 0.7)',
+                            'rgba(255, 101, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 215, 0, 1)',
+                            'rgba(108, 99, 255, 1)',
+                            'rgba(255, 101, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: var(--text),
+                                font: {
+                                    family: 'Poppins'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                family: 'Poppins'
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            // Clear stored data
+            localStorage.removeItem('userData');
+            sessionStorage.removeItem('userData');
+
+            // Redirect to login
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

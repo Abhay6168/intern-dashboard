@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternConnect - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --bg: #0F0F1A;
+            --card-bg: #1E1E2E;
+            --text: #FFFFFF;
+            --text-secondary: #B8B8D1;
+            --hover: #8A85FF;
+            --success: #1DE9B6;
+            --warning: #FFAB40;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 4px 30px rgba(108, 99, 255, 0.2);
+        }
+
+        .navbar-brand {
+            color: var(--primary);
+            font-weight: 700;
+            animation: fadeIn 1s ease;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .dashboard-container {
+            padding: 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .welcome-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(108, 99, 255, 0.2);
+        }
+
+        .stats-card:nth-child(1) { animation-delay: 0.2s; }
+        .stats-card:nth-child(2) { animation-delay: 0.4s; }
+        .stats-card:nth-child(3) { animation-delay: 0.6s; }
+        .stats-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .stats-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover .stats-icon {
+            transform: scale(1.1);
+        }
+
+        .logout-btn {
+            background-color: var(--accent);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff4d6d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 101, 132, 0.4);
+        }
+
+        .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+            transition: width 1s ease;
+        }
+
+        .referral-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInRight 0.8s ease;
+        }
+
+        .referral-code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .referral-code:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .rewards-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .reward-item:hover {
+            transform: translateX(5px);
+        }
+
+        .reward-item:last-child {
+            border-bottom: none;
+        }
+
+        .reward-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+
+        .reward-locked {
+            color: var(--text-secondary);
+        }
+
+        .reward-unlocked {
+            color: var(--success);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-rocket"></i> InternConnect
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                <a class="nav-link" href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a>
+                <button class="btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container dashboard-container" style="margin-top: 80px;">
+        <div class="welcome-card floating">
+            <h2>Welcome back, <span id="userName">Abhay Patil</span>! 👋</h2>
+            <p class="text-muted">Here's your internship performance overview</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h4>12</h4>
+                    <p class="text-muted">Tasks Completed</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4>4.8</h4>
+                    <p class="text-muted">Performance Rating</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4>#5</h4>
+                    <p class="text-muted">Leaderboard Rank</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h4 id="donationsRaised">1,250</h4>
+                    <p class="text-muted">Donations Raised</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="referral-card">
+                    <h4><i class="fas fa-share-alt"></i> Your Referral Code</h4>
+                    <p>Share this code to earn rewards when others sign up</p>
+                    <div class="referral-code pulse" onclick="copyReferralCode()" title="Click to copy">
+                        ABHAY2025
+                    </div>
+                    <small class="text-white-50 mt-2 d-block">Click to copy</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="rewards-card">
+                    <h4><i class="fas fa-gift"></i> Your Rewards</h4>
+                    <p>Unlock more rewards as you progress</p>
+                    
+                    <div class="reward-item">
+                        <div class="reward-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Starter Badge</h6>
+                            <small class="reward-unlocked">Unlocked</small>
+                        </div>
+                    </div>
+                    
+                    <div class="reward-item">
+                        <div class="reward-icon">
+                            <i class="fas fa-coffee"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Coffee Chat with Mentor</h6>
+                            <small class="reward-unlocked">Unlocked</small>
+                        </div>
+                    </div>
+                    
+                    <div class="reward-item">
+                        <div class="reward-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Premium Certificate</h6>
+                            <small class="reward-locked">500 more points to unlock</small>
+                        </div>
+                    </div>
+                    
+                    <div class="reward-item">
+                        <div class="reward-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Job Referral</h6>
+                            <small class="reward-locked">1000 more points to unlock</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="stats-card">
+                    <h5><i class="fas fa-chart-line"></i> Recent Activity</h5>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Completed project presentation</span>
+                            <span class="text-success">+50 points</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Attended team meeting</span>
+                            <span class="text-success">+20 points</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Code review completed</span>
+                            <span class="text-success">+30 points</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Referred a new intern</span>
+                            <span class="text-success">+100 points</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h5><i class="fas fa-bullseye"></i> Current Goals</h5>
+                    <div class="mt-3">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Complete 15 tasks</span>
+                                <span>12/15</span>
+                            </div>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Earn 1000 points</span>
+                                <span>850/1000</span>
+                            </div>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Raise $2000 in donations</span>
+                                <span>$1250/$2000</span>
+                            </div>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" style="width: 62%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function () {
+            const userData = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+
+            if (!userData) {
+                // Redirect to login if not logged in
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.firstName || 'User';
+                
+                // Simulate fetching donations data (replace with real API call)
+                setTimeout(() => {
+                    document.getElementById('donationsRaised').textContent = '1,250';
+                    document.querySelectorAll('.progress-bar').forEach(bar => {
+                        bar.style.width = bar.style.width; // Trigger animation
+                    });
+                }, 500);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+            }
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    document.querySelector('.navbar').classList.add('scrolled');
+                } else {
+                    document.querySelector('.navbar').classList.remove('scrolled');
+                }
+            });
+        });
+
+        function logout() {
+            // Clear stored data
+            localStorage.removeItem('userData');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('rememberMe');
+            sessionStorage.removeItem('userData');
+            sessionStorage.removeItem('userEmail');
+
+            // Redirect to login
+            window.location.href = 'login.html';
+        }
+
+        function copyReferralCode() {
+            const code = 'ABHAY2025';
+            navigator.clipboard.writeText(code).then(() => {
+                const element = document.querySelector('.referral-code');
+                element.textContent = 'Copied!';
+                element.classList.remove('pulse');
+                setTimeout(() => {
+                    element.textContent = code;
+                    element.classList.add('pulse');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>
